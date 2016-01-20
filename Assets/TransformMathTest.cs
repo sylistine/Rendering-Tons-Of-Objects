@@ -6,7 +6,7 @@ using System.Collections;
 public class TransformMathTest : MonoBehaviour
 {
     Mesh combinedMesh;
-    Vector3[] v, n, translation, transformedV, translationDirection;
+    Vector3[] v, n;
     int[] tris, subMeshId;
     Matrix4x4[] trsMatrix;
 
@@ -22,27 +22,16 @@ public class TransformMathTest : MonoBehaviour
 
         v = new Vector3[numVerts];
         n = new Vector3[numVerts];
-        translation = new Vector3[numVerts];
-        transformedV = new Vector3[numVerts];
-		translationDirection = new Vector3[numQuads];
 		tris = new int[CubePrototype.tris.Length * numQuads];
         subMeshId = new int[numVerts];
 		trsMatrix = new Matrix4x4[numVerts];
-
-
-		// trsMatrix[0, 0] = Mathf.Cos(Mathf.Deg2Rad * -1);
-        // trsMatrix[0, 1] = -Mathf.Sin(Mathf.Deg2Rad * -1);
-        // trsMatrix[1, 0] = Mathf.Sin(Mathf.Deg2Rad * -1);
-        // trsMatrix[1, 1] = Mathf.Cos(Mathf.Deg2Rad * -1);
 
         // Define verts, norms, and submesh ids
         for (int i = 0, j = 0, id = 0; i < v.Length; i++)
         {
             v[i] = CubePrototype.verts[j];
             n[i] = new Vector3(0, 0, -1);
-            translation[i] = Vector3.zero;
             subMeshId[i] = id;
-            transformedV[i] = v[i] + translation[i];
 
             if (j < CubePrototype.verts.Length - 1)
             {
@@ -51,7 +40,9 @@ public class TransformMathTest : MonoBehaviour
             else
             {
                 j = 0;
-				Vector3 t = new Vector3(Random.Range(-1f, 1f), Random.Range(0, 1f), Random.Range(-1f, 1f)).normalized / 8;
+                float rand = Random.Range(0, 359.99f);
+				Vector3 t = new Vector3(Mathf.Cos(Mathf.Deg2Rad * rand), 0, Mathf.Sin(Mathf.Deg2Rad * rand)) * Random.Range(0, 1f);
+                //t.y = Mathf.Acos(t.magnitude);
 				trsMatrix[id] = Matrix4x4.TRS(t, Quaternion.identity, Vector3.one);
                 id++;
             }
@@ -66,7 +57,7 @@ public class TransformMathTest : MonoBehaviour
             }
         }
         
-        combinedMesh.vertices = transformedV;
+        combinedMesh.vertices = v;
         combinedMesh.normals = n;
         combinedMesh.triangles = tris;
 
@@ -78,12 +69,9 @@ public class TransformMathTest : MonoBehaviour
         for (int i = 0; i < v.Length; i++)
         {
             // Apply translation, rotation, and scale directly to mesh
-            Vector3 pivot = new Vector3(0.5f, 0.5f);
-			v[i] = trsMatrix[subMeshId[i]].MultiplyPoint3x4(v[i] - pivot) + pivot;
-
-            transformedV[i] = v[i] + translation[i];
+			v[i] = trsMatrix[subMeshId[i]].MultiplyPoint3x4(v[i]);
         }
-        combinedMesh.vertices = transformedV;
+        combinedMesh.vertices = v;
 	}
 
     private class QuadPrototype

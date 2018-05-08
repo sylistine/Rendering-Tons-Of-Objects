@@ -1,6 +1,6 @@
 # Rendering-Tons-Of-Objects
 
-## Stats in-editor on PC (GTX1080)
+## Stats in-editor on PC (GTX1080, Unity2017.3.0f3)
 601.5k verts (902.6k tris)
 29 batches @15ms
 
